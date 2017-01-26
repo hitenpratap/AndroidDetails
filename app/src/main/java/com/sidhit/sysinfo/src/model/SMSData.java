@@ -1,4 +1,4 @@
-package com.sidhit.sysinfo.src;
+package com.sidhit.sysinfo.src.model;
 
 /**
  * Created by hitenpratap on 26/01/17.

