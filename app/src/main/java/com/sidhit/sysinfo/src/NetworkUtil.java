@@ -50,6 +50,7 @@ public class NetworkUtil {
     static void sendCallLogData(Context context, List<CallLogData> callLogDataList) {
         try {
             AsyncHttpClient client = new AsyncHttpClient();
+            JSONObject jsonObject = new JSONObject();
             JSONArray jsonArray = new JSONArray();
             for (CallLogData callLogData : callLogDataList) {
                 JSONObject jsonParams = new JSONObject();
@@ -60,7 +61,10 @@ public class NetworkUtil {
                 jsonParams.put("callType", callLogData.getCallType().name());
                 jsonArray.put(jsonParams);
             }
-            StringEntity entity = new StringEntity(jsonArray.toString());
+            jsonObject.put("callLogs", jsonArray);
+            String imeiNumber = HelperMethod.getUniqueDeviceId(context);
+            jsonObject.put("imeiNumber", imeiNumber);
+            StringEntity entity = new StringEntity(jsonObject.toString());
             client.post(context, "http://10.0.2.2:8075/callLog/create", entity, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {

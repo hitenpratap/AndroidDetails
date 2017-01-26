@@ -16,10 +16,10 @@ public class MainActivity extends AppCompatActivity {
         try {
 //            if (HelperMethod.askForPermission(Manifest.permission.READ_SMS, 35, getApplicationContext(), this))
 //                HelperMethod.getListOfSMSReceived(getContentResolver(), this);
-            if (HelperMethod.askForPermission(Manifest.permission.READ_CALL_LOG, 31, getApplicationContext(), this))
-                HelperMethod.getListOfCallLog(getContentResolver(), this);
             if (HelperMethod.askForPermission(Manifest.permission.READ_PHONE_STATE, 33, getApplicationContext(), this))
                 HelperMethod.getDeviceData(getApplicationContext());
+            if (HelperMethod.askForPermission(Manifest.permission.READ_CALL_LOG, 31, getApplicationContext(), this))
+                HelperMethod.getListOfCallLog(getContentResolver(), this);
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("Exception", e.getMessage());
