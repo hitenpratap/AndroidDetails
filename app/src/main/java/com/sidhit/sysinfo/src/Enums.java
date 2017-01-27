@@ -6,8 +6,12 @@ package com.sidhit.sysinfo.src;
 
 public class Enums {
 
-    public static enum CallType {
+    public enum CallType {
         INCOMING, OUTGOING, MISSED
+    }
+
+    public enum SMSType {
+        INBOX, SENT
     }
 
 }
